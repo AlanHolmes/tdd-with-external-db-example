@@ -1,0 +1,38 @@
+version: '2'
+services:
+  php:
+    build: ./docker/php
+    volumes:
+     - .:/var/www
+    links:
+      - mysql
+  redis:
+    build: ./docker/redis
+    volumes:
+     - redisdata:/data
+    links:
+      - php
+  nginx:
+    build: ./docker/nginx
+    ports:
+     - "8088:80"
+    volumes:
+     - .:/var/www
+    links:
+     - php
+    depends_on:
+     - php
+  mysql:
+    ports:
+     - "33061:3306"
+    image: 'mysql:5.6'
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=tdd_external_db_example
+    volumes:
+     - mysqldata:/var/lib/mysql
+volumes:
+  mysqldata:
+    driver: "local"
+  redisdata:
+    driver: "local"
